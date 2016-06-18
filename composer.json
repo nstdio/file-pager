@@ -1,5 +1,5 @@
 {
-  "name": "nstdio/file-paginator",
+  "name": "nstdio/file-pager",
   "description": "A simple file paginator.",
   "minimum-stability": "dev",
   "license": "Apache License 2.0",
