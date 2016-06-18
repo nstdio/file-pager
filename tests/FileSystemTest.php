@@ -1,6 +1,6 @@
 <?php
 use nstdio\Cache;
-use nstdio\FilePaginator;
+use nstdio\FilePager;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -53,7 +53,7 @@ class FileSystemTest extends TestCase
         $this->expectException('InvalidArgumentException');
         $this->expectExceptionMessage("No such file: $this->notExistingFile.");
 
-        new FilePaginator($this->notExistingFile);
+        new FilePager($this->notExistingFile);
     }
 
     /**
@@ -64,7 +64,7 @@ class FileSystemTest extends TestCase
         $this->expectException('InvalidArgumentException');
         $this->expectExceptionMessage("No permission to read $this->notReadableFile file.");
 
-        new FilePaginator($this->notReadableFile);
+        new FilePager($this->notReadableFile);
     }
 
     /**
@@ -72,7 +72,7 @@ class FileSystemTest extends TestCase
      */
     public function createCashDirAndFileWithSinglePage()
     {
-        $fp = new FilePaginator($this->goodFile);
+        $fp = new FilePager($this->goodFile);
         $fp->setCache($this->goodCache);
 
         $fp->getPage(1);
@@ -91,7 +91,7 @@ class FileSystemTest extends TestCase
      */
     public function createCashDirAndFileWithRange()
     {
-        $fp = new FilePaginator($this->goodFile);
+        $fp = new FilePager($this->goodFile);
         $fp->setCache($this->goodCache);
 
         $fp->getRange(1, 20);

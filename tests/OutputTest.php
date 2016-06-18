@@ -1,5 +1,5 @@
 <?php
-use nstdio\FilePaginator;
+use nstdio\FilePager;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -12,7 +12,7 @@ class OutputTest extends TestCase
     private $fileName;
 
     /**
-     * @var FilePaginator
+     * @var FilePager
      */
     private $fp;
 
@@ -28,7 +28,7 @@ class OutputTest extends TestCase
         $this->pageSize = 50;
         $this->page = 1;
         $this->pageEnd = $this->page + 5;
-        $this->fp = new FilePaginator($this->fileName, $this->pageSize);
+        $this->fp = new FilePager($this->fileName, $this->pageSize);
     }
 
     /**
@@ -49,7 +49,7 @@ class OutputTest extends TestCase
         $this->assertEquals($this->pageSize, count(explode("\n", $page)) - 1);
 
         $newPageSize = 10;
-        $fp2 = new FilePaginator($this->fileName, $newPageSize);
+        $fp2 = new FilePager($this->fileName, $newPageSize);
 
         $newPage = $fp2->getPage($this->page);
         $cnt = count(explode("\n", $newPage)) - 1;

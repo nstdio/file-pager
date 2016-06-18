@@ -4,12 +4,12 @@ namespace nstdio;
 use InvalidArgumentException;
 
 /**
- * Class FilePaginator
+ * Class FilePager
  *
  * @package nstdio
  * @author  Edgar Asatryan <nstdio@gmail.com>
  */
-class FilePaginator implements OutputInterface
+class FilePager implements OutputInterface
 {
     private static $tokens = [
         'page',
