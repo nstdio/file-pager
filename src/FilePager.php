@@ -42,6 +42,16 @@ class FilePager implements OutputInterface
     private $prepend;
 
     /**
+     * @var string
+     */
+    private $appendLine;
+
+    /**
+     * @var
+     */
+    private $prependLine;
+
+    /**
      * @var int
      */
     private $lineNumber = 1;
@@ -163,18 +173,27 @@ class FilePager implements OutputInterface
     {
         $ret = '';
         $this->handler->seek($start);
+        if ($this->prepend !== null) {
+            $ret .= $this->prepend;
+        }
         while (($line = fgets($this->handler->getFileHandler(), 8196)) !== false) {
             if ($this->handler->tell() > $end) {
                 return $ret;
             }
 
+            if ($this->prependLine !== null) {
+                $line = $this->prependLine . $line;
+            }
             $ret .= $this->handle($line);
+            if ($this->appendLine !== null) {
+                $ret = rtrim($ret) . $this->appendLine . PHP_EOL;
+            }
             if ($this->lineNumber % $this->pageSize === 0) {
-                if ($this->prepend !== null) {
-                    $ret .= $this->prepend;
-                }
                 if ($this->append !== null) {
                     $ret .= $this->append;
+                }
+                if ($this->prepend !== null) {
+                    $ret .= $this->prepend;
                 }
             }
             $this->lineNumber++;
@@ -259,6 +278,8 @@ class FilePager implements OutputInterface
         $ret = $this->output->append($append, $useHandle);
 
         $this->append = $this->append === null ? $ret : $this->append .= $ret;
+
+        return $this;
     }
 
     /**
@@ -268,6 +289,10 @@ class FilePager implements OutputInterface
     {
         $this->lazyOutputInit();
         $ret = $this->output->prepend($prepend, $useHandle);
+
+        $this->prepend = $this->prepend === null ? $ret : $this->prepend .= $ret;
+
+        return $this;
     }
 
     /**
@@ -289,16 +314,26 @@ class FilePager implements OutputInterface
     /**
      * @inheritdoc
      */
-    public function appendLine($append, $userHandle = false)
+    public function appendLine($append, $useHandle = false)
     {
-        // TODO: Implement appendLine() method.
+        $this->lazyOutputInit();
+        $ret = $this->output->appendLine($append, $useHandle);
+
+        $this->appendLine = $this->appendLine === null ? $ret : $this->appendLine .= $ret;
+
+        return $this;
     }
 
     /**
      * @inheritdoc
      */
-    public function prependLine($prepend, $userHandle = false)
+    public function prependLine($prepend, $useHandle = false)
     {
-        // TODO: Implement prependLine() method.
+        $this->lazyOutputInit();
+        $ret = $this->output->prependLine($prepend, $useHandle);
+
+        $this->prependLine = $this->prependLine === null ? $ret : $this->prependLine .= $ret;
+
+        return $this;
     }
 }

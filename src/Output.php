@@ -70,16 +70,16 @@ class Output implements OutputInterface
     /**
      * @inheritdoc
      */
-    public function appendLine($append, $userHandle = false)
+    public function appendLine($append, $useHandle = false)
     {
-        // TODO: Implement appendLine() method.
+        return $this->append($append, $useHandle);
     }
 
     /**
      * @inheritdoc
      */
-    public function prependLine($prepend, $userHandle = false)
+    public function prependLine($prepend, $useHandle = false)
     {
-        // TODO: Implement prependLine() method.
+        return $this->prepend($prepend, $useHandle);
     }
 }

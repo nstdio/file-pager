@@ -34,17 +34,17 @@ interface OutputInterface
 
     /**
      * @param string|array $append Appends a string to the end of the line.
-     * @param bool         $userHandle
+     * @param bool         $useHandle
      *
      * @return mixed
      */
-    public function appendLine($append, $userHandle = false);
+    public function appendLine($append, $useHandle = false);
 
     /**
      * @param string $prepend Prepends a string to the end of the line.
-     * @param bool   $userHandle
+     * @param bool   $useHandle
      *
      * @return mixed
      */
-    public function prependLine($prepend, $userHandle = false);
+    public function prependLine($prepend, $useHandle = false);
 }
