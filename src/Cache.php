@@ -30,11 +30,6 @@ class Cache
      */
     private $item;
 
-    /**
-     * @var bool
-     */
-    private $exist;
-
     public function __construct($fileName)
     {
         $this->fileName = $fileName;

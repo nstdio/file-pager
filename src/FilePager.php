@@ -11,14 +11,6 @@ use InvalidArgumentException;
  */
 class FilePager implements OutputInterface
 {
-    private static $tokens = [
-        'page',
-        'line',
-        'file',
-        'dir',
-        'path',
-    ];
-
     /**
      * @var int
      */
@@ -35,7 +27,7 @@ class FilePager implements OutputInterface
     private $cache;
 
     /**
-     * @var OutputInterface | \Closure
+     * @var OutputInterface
      */
     private $output;
 
@@ -187,6 +179,8 @@ class FilePager implements OutputInterface
             }
             $this->lineNumber++;
         }
+        $this->lineNumber = 1;
+
         return $ret;
     }
 
@@ -196,11 +190,8 @@ class FilePager implements OutputInterface
     public function handle($line)
     {
         $this->lazyOutputInit();
-        if ($this->isOutputInterface()) {
+        if ($this->output instanceof OutputInterface) {
             return $this->output->handle($line);
-        }
-        if ($this->isOutputCallback()) {
-            return $this->output->__invoke($line);
         }
 
         return $line;
@@ -214,22 +205,6 @@ class FilePager implements OutputInterface
     }
 
     /**
-     * @return bool
-     */
-    private function isOutputInterface()
-    {
-        return $this->output instanceof OutputInterface;
-    }
-
-    /**
-     * @return bool
-     */
-    private function isOutputCallback()
-    {
-        return $this->output instanceof \Closure;
-    }
-
-    /**
      * @return int
      */
     public function getPageSize()
@@ -238,7 +213,7 @@ class FilePager implements OutputInterface
     }
 
     /**
-     * @return OutputInterface | \Closure
+     * @return OutputInterface
      */
     public function getOutput()
     {
@@ -246,11 +221,11 @@ class FilePager implements OutputInterface
     }
 
     /**
-     * @param OutputInterface | \Closure $output
+     * @param OutputInterface $output
      */
-    public function setOutput($output)
+    public function setOutput(OutputInterface $output)
     {
-        if (!($output instanceof OutputInterface) && !($output instanceof \Closure)) {
+        if (!($output instanceof OutputInterface)) {
             $output = new Output();
         }
         $this->output = $output;
@@ -276,21 +251,13 @@ class FilePager implements OutputInterface
     }
 
     /**
-     * @param string|array $append    Appends a string to the end of the page.
-     * @param bool         $useHandle If true [[$string]] will be passed into [[handle()]]
-     *
-     * @return mixed
+     * @inheritdoc
      */
     public function append($append, $useHandle = false)
     {
-        $ret = '';
         $this->lazyOutputInit();
-        if ($this->isOutputInterface()) {
-            $ret = $this->output->append($append, $useHandle);
-        }
-        if ($this->isOutputCallback()) {
-            $ret = $useHandle ? $this->output->__invoke($append) : $append;
-        }
+        $ret = $this->output->append($append, $useHandle);
+
         $this->append = $this->append === null ? $ret : $this->append .= $ret;
     }
 
@@ -299,7 +266,8 @@ class FilePager implements OutputInterface
      */
     public function prepend($prepend, $useHandle = false)
     {
-        // TODO: Implement prepend() method.
+        $this->lazyOutputInit();
+        $ret = $this->output->prepend($prepend, $useHandle);
     }
 
     /**
