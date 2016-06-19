@@ -57,6 +57,16 @@ class FilePager implements OutputInterface
     private $lineNumber = 1;
 
     /**
+     * @var int
+     */
+    private $realLineNumber;
+
+    /**
+     * @var int
+     */
+    private $page;
+
+    /**
      * FilePaginator constructor.
      *
      * @param string $fileName
@@ -87,13 +97,16 @@ class FilePager implements OutputInterface
      */
     public function getPage($page)
     {
-        $page = (int)$page;
-        if ($page <= 0) {
-            $page = 1;
-        }
         $this->checkCache();
 
-        return $this->read($page);
+        $this->page = (int)$page;
+        if ($this->page <= 0) {
+            $this->page = 1;
+        }
+        if ($this->page > $this->cache->get()->getPageCount()) {
+            $this->page = $this->cache->get()->getPageCount();
+        }
+        return $this->read();
     }
 
     private function checkCache()
@@ -117,8 +130,10 @@ class FilePager implements OutputInterface
             } catch (CorruptedDataException $e) {
                 $this->createCache();
             }
+
             return true;
         }
+
         return false;
     }
 
@@ -133,6 +148,7 @@ class FilePager implements OutputInterface
             }
             $lineNumber++;
         }
+        array_push($pos, File::size($this->getFileName()));
         $item = new CacheItem($pos, File::modTime($this->getFileName()), $this->pageSize);
         $this->cache->create($item);
     }
@@ -151,13 +167,12 @@ class FilePager implements OutputInterface
     }
 
     /**
-     * @param int $page
      *
      * @return string
      */
-    private function read($page)
+    private function read()
     {
-        $offset = $this->cache->get()->get($page);
+        $offset = $this->cache->get()->get($this->page);
 
         return $this->readOffset($offset[0], $offset[1]);
     }
@@ -172,6 +187,7 @@ class FilePager implements OutputInterface
     private function readOffset($start, $end)
     {
         $ret = '';
+        $this->initRealLineNumber();
         $this->handler->seek($start);
         if ($this->prepend !== null) {
             $ret .= $this->prepend;
@@ -182,25 +198,38 @@ class FilePager implements OutputInterface
             }
 
             if ($this->prependLine !== null) {
-                $line = $this->prependLine . $line;
+                $line = $this->replaceToken($this->prependLine) . $line;
             }
             $ret .= $this->handle($line);
             if ($this->appendLine !== null) {
-                $ret = rtrim($ret) . $this->appendLine . PHP_EOL;
+                $ret = rtrim($ret) . $this->replaceToken($this->appendLine) . PHP_EOL;
             }
             if ($this->lineNumber % $this->pageSize === 0) {
-                if ($this->append !== null) {
-                    $ret .= $this->append;
-                }
-                if ($this->prepend !== null) {
-                    $ret .= $this->prepend;
-                }
+                $ret = $this->concatPage($ret);
             }
+            $this->realLineNumber++;
             $this->lineNumber++;
+        }
+        if ($this->page === $this->cache->get()->getPageCount()) {
+            $ret = $this->concatPage($ret);
         }
         $this->lineNumber = 1;
 
         return $ret;
+    }
+
+    private function replaceToken($prependLine)
+    {
+        $replace = [
+            '{line}'     => $this->realLineNumber,
+            '{pageLine}' => $this->lineNumber,
+            '{path}'     => $this->getFileName(),
+            '{file}'     => basename($this->getFileName()),
+            '{dir}'      => dirname($this->getFileName()),
+            '{page}'     => $this->page,
+        ];
+
+        return strtr($prependLine, $replace);
     }
 
     /**
@@ -335,5 +364,30 @@ class FilePager implements OutputInterface
         $this->prependLine = $this->prependLine === null ? $ret : $this->prependLine .= $ret;
 
         return $this;
+    }
+
+    private function initRealLineNumber()
+    {
+        $this->realLineNumber = $this->page === 1 ? $this->lineNumber : ($this->lineNumber + $this->pageSize) * ($this->page - 1);
+        if ($this->page > 2) {
+            $this->realLineNumber = $this->realLineNumber - $this->page + 2;
+        }
+    }
+
+    /**
+     * @param $ret
+     *
+     * @return string
+     */
+    private function concatPage($ret)
+    {
+        if ($this->append !== null) {
+            $ret .= $this->replaceToken($this->append);
+        }
+        if ($this->prepend !== null) {
+            $ret .= $this->replaceToken($this->prepend);
+        }
+
+        return $ret;
     }
 }
