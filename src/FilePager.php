@@ -280,25 +280,6 @@ class FilePager implements OutputInterface
     }
 
     /**
-     * @param $start
-     * @param $end
-     *
-     * @return string
-     */
-    public function getRange($start, $end)
-    {
-        if ($end < $start) {
-            $start = $end;
-        }
-        $this->checkCache();
-
-        $start = $this->cache->get()->get($start)[0];
-        $end = $this->cache->get()->get($end)[1];
-
-        return $this->readOffset($start, $end);
-    }
-
-    /**
      * @inheritdoc
      */
     public function append($append, $useHandle = false)
