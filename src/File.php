@@ -62,4 +62,9 @@ class File
     {
         return mkdir($dir, 0755, true);
     }
+
+    public static function size($fileName)
+    {
+        return filesize($fileName);
+    }
 }
