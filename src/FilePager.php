@@ -153,7 +153,7 @@ class FilePager implements OutputInterface
         $this->cache->create($item);
     }
 
-    public function getFileName()
+    private function getFileName()
     {
         return $this->handler->getFileName();
     }
@@ -250,14 +250,6 @@ class FilePager implements OutputInterface
         if ($this->output === null) {
             $this->output = new Output();
         }
-    }
-
-    /**
-     * @return int
-     */
-    public function getPageSize()
-    {
-        return $this->pageSize;
     }
 
     /**
