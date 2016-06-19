@@ -25,6 +25,11 @@ class CacheItem
     private $pageSize;
 
     /**
+     * @var int
+     */
+    private $pageCount;
+
+    /**
      * CacheItem constructor.
      *
      * @param array $data
@@ -36,6 +41,7 @@ class CacheItem
         $this->data = $data;
         $this->srcModTime = $modTime;
         $this->pageSize = $pageSize;
+        $this->pageCount = count($data) - 1;
     }
 
     /**
@@ -73,5 +79,29 @@ class CacheItem
             $this->data[$page - 1],
             $this->data[$page],
         ];
+    }
+
+    /**
+     * @return int
+     */
+    public function getPageCount()
+    {
+        return $this->pageCount;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function __sleep()
+    {
+        return ['data', 'srcModTime', 'pageSize'];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function __wakeup()
+    {
+        $this->pageCount = count($this->data) - 1;
     }
 }
