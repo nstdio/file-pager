@@ -31,20 +31,4 @@ interface OutputInterface
      * @return mixed
      */
     public function prepend($prepend, $useHandle = false);
-
-    /**
-     * @param string|array $append Appends a string to the end of the line.
-     * @param bool         $useHandle
-     *
-     * @return mixed
-     */
-    public function appendLine($append, $useHandle = false);
-
-    /**
-     * @param string $prepend Prepends a string to the end of the line.
-     * @param bool   $useHandle
-     *
-     * @return mixed
-     */
-    public function prependLine($prepend, $useHandle = false);
 }

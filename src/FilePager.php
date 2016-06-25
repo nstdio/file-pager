@@ -148,6 +148,9 @@ class FilePager implements OutputInterface
             }
             $lineNumber++;
         }
+        if (count($pos) === 1) {
+            $this->pageSize = $lineNumber - 1;
+        }
         array_push($pos, File::size($this->getFileName()));
         $item = new CacheItem($pos, File::modTime($this->getFileName()), $this->pageSize);
         $this->cache->create($item);
@@ -194,7 +197,7 @@ class FilePager implements OutputInterface
         }
         while (($line = fgets($this->handler->getFileHandler(), 8196)) !== false) {
             if ($this->handler->tell() > $end) {
-                return $ret;
+                return rtrim($ret);
             }
 
             if ($this->prependLine !== null) {
@@ -215,7 +218,7 @@ class FilePager implements OutputInterface
         }
         $this->lineNumber = 1;
 
-        return $ret;
+        return rtrim($ret);
     }
 
     private function replaceToken($prependLine)
@@ -319,7 +322,7 @@ class FilePager implements OutputInterface
     public function appendLine($append, $useHandle = false)
     {
         $this->lazyOutputInit();
-        $ret = $this->output->appendLine($append, $useHandle);
+        $ret = $this->output->append($append, $useHandle);
 
         $this->appendLine = $this->appendLine === null ? $ret : $this->appendLine .= $ret;
 
@@ -332,7 +335,7 @@ class FilePager implements OutputInterface
     public function prependLine($prepend, $useHandle = false)
     {
         $this->lazyOutputInit();
-        $ret = $this->output->prependLine($prepend, $useHandle);
+        $ret = $this->output->prepend($prepend, $useHandle);
 
         $this->prependLine = $this->prependLine === null ? $ret : $this->prependLine .= $ret;
 

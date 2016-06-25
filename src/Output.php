@@ -9,16 +9,6 @@ namespace nstdio;
  */
 class Output implements OutputInterface
 {
-    /**
-     * @inheritdoc
-     */
-    public function append($append, $useHandle = false)
-    {
-        if (is_array($append)) {
-            $append = $this->handleArray($append);
-        }
-        return $this->tryUseHandle($append, $useHandle);
-    }
 
     /**
      *
@@ -31,21 +21,26 @@ class Output implements OutputInterface
         $sep = array_key_exists('sep', $array) ? $array['sep'] : " ";
         unset($array['sep']);
         $string = implode($sep, $array);
+
         return $string;
     }
 
     /**
-     * @param $prepend
+     * @param $line
      * @param $useHandle
      *
      * @return string
      */
-    private function tryUseHandle($prepend, $useHandle)
+    private function tryUseHandle($line, $useHandle)
     {
-        if ($useHandle) {
-            return $this->handle($prepend);
+        if (is_array($line)) {
+            $line = $this->handleArray($line);
         }
-        return $prepend;
+        if ($useHandle) {
+            return $this->handle($line);
+        }
+
+        return $line;
     }
 
     /**
@@ -59,27 +54,16 @@ class Output implements OutputInterface
     /**
      * @inheritdoc
      */
+    public function append($append, $useHandle = false)
+    {
+        return $this->tryUseHandle($append, $useHandle);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function prepend($prepend, $useHandle = false)
     {
-        if (is_array($prepend)) {
-            $prepend = $this->handleArray($prepend);
-        }
         return $this->tryUseHandle($prepend, $useHandle);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function appendLine($append, $useHandle = false)
-    {
-        return $this->append($append, $useHandle);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function prependLine($prepend, $useHandle = false)
-    {
-        return $this->prepend($prepend, $useHandle);
     }
 }

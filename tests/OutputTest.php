@@ -28,7 +28,11 @@ class OutputTest extends TestCase
         $this->pageSize = 50;
         $this->page = 1;
         $this->pageEnd = $this->page + 5;
-        $this->fp = new FilePager($this->fileName, $this->pageSize);
+        try {
+            $this->fp = new FilePager($this->fileName, $this->pageSize);
+        } catch (InvalidArgumentException $ignored) {
+
+        }
     }
 
     /**
@@ -37,6 +41,7 @@ class OutputTest extends TestCase
     public function mockFileExist()
     {
         $this->assertFileExists($this->fileName, 'Place the mock.txt into tests directory.');
+        $this->assertStringNotEqualsFile($this->fileName, '', 'mock.txt seems to be an empty file. Please fix it.');
     }
 
     /**
@@ -46,13 +51,13 @@ class OutputTest extends TestCase
     public function pageSizeChange()
     {
         $page = $this->fp->getPage($this->page);
-        $this->assertEquals($this->pageSize, count(explode("\n", $page)) - 1);
+        $this->assertAttributeEquals(count(explode("\n", $page)), 'pageSize', $this->fp);
 
         $newPageSize = 10;
         $fp2 = new FilePager($this->fileName, $newPageSize);
 
         $newPage = $fp2->getPage($this->page);
-        $cnt = count(explode("\n", $newPage)) - 1;
+        $cnt = count(explode("\n", $newPage));
 
         $this->assertTrue($fp2->getCache()->upToDate($newPageSize), 'Page size changed, but cache is valid!');
         $this->assertEquals($newPageSize, $fp2->getCache()->get()->getPageSize(), 'In cache item not valid page size.');
@@ -69,16 +74,7 @@ class OutputTest extends TestCase
         $offset = $this->page === 1 ? 0 : ($this->page - 1) * $this->pageSize;
         $fileAsArray = array_slice(file($this->fileName), $offset, $this->pageSize);
 
-        $this->fp->setOutput(function($line) {
-            return $line;
-        });
         $page = $this->fp->getPage($this->page);
-        $exploded = explode("\n", $page);
-
-        $this->compare($fileAsArray, $exploded);
-
-        $page = $this->fp->getRange($this->page, $this->pageEnd);
-
         $exploded = explode("\n", $page);
 
         $this->compare($fileAsArray, $exploded);
