@@ -9,25 +9,22 @@ use PHPUnit\Framework\TestCase;
  */
 class OutputTest extends TestCase
 {
-    private $fileName;
+    protected $fileName;
 
     /**
      * @var FilePager
      */
-    private $fp;
+    protected $fp;
 
-    private $pageSize;
+    protected $pageSize;
 
-    private $page;
-
-    private $pageEnd;
+    protected $page;
 
     public function setUp()
     {
         $this->fileName = "mock.txt";
         $this->pageSize = 50;
         $this->page = 1;
-        $this->pageEnd = $this->page + 5;
         try {
             $this->fp = new FilePager($this->fileName, $this->pageSize);
         } catch (InvalidArgumentException $ignored) {
@@ -97,6 +94,7 @@ class OutputTest extends TestCase
             $this->assertStringEndsWith($append, rtrim($value));
         }
     }
+
 
     /**
      * @param $fileAsArray

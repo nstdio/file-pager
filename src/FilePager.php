@@ -1,6 +1,7 @@
 <?php
 namespace nstdio;
 
+use Closure;
 use InvalidArgumentException;
 
 /**
@@ -244,6 +245,9 @@ class FilePager implements OutputInterface
         if ($this->output instanceof OutputInterface) {
             return $this->output->handle($line);
         }
+        if ($this->output instanceof Closure) {
+            return $this->output->__invoke($line);
+        }
 
         return $line;
     }
@@ -264,11 +268,11 @@ class FilePager implements OutputInterface
     }
 
     /**
-     * @param OutputInterface $output
+     * @param OutputInterface | Closure $output
      */
-    public function setOutput(OutputInterface $output)
+    public function setOutput($output)
     {
-        if (!($output instanceof OutputInterface)) {
+        if (!($output instanceof OutputInterface) && !($output instanceof Closure)) {
             $output = new Output();
         }
         $this->output = $output;
@@ -280,7 +284,11 @@ class FilePager implements OutputInterface
     public function append($append, $useHandle = false)
     {
         $this->lazyOutputInit();
-        $ret = $this->output->append($append, $useHandle);
+        if ($this->output instanceof Closure && $useHandle) {
+            $ret = $this->output->__invoke($append);
+        } else {
+            $ret = $this->output->append($append, $useHandle);
+        }
 
         $this->append = $this->append === null ? $ret : $this->append .= $ret;
 
@@ -293,7 +301,11 @@ class FilePager implements OutputInterface
     public function prepend($prepend, $useHandle = false)
     {
         $this->lazyOutputInit();
-        $ret = $this->output->prepend($prepend, $useHandle);
+        if ($this->output instanceof Closure && $useHandle) {
+            $ret = $this->output->__invoke($prepend);
+        } else {
+            $ret = $this->output->prepend($prepend, $useHandle);
+        }
 
         $this->prepend = $this->prepend === null ? $ret : $this->prepend .= $ret;
 
@@ -322,7 +334,11 @@ class FilePager implements OutputInterface
     public function appendLine($append, $useHandle = false)
     {
         $this->lazyOutputInit();
-        $ret = $this->output->append($append, $useHandle);
+        if ($this->output instanceof Closure && $useHandle) {
+            $ret = $this->output->__invoke($append);
+        } else {
+            $ret = $this->output->append($append, $useHandle);
+        }
 
         $this->appendLine = $this->appendLine === null ? $ret : $this->appendLine .= $ret;
 
@@ -335,7 +351,11 @@ class FilePager implements OutputInterface
     public function prependLine($prepend, $useHandle = false)
     {
         $this->lazyOutputInit();
-        $ret = $this->output->prepend($prepend, $useHandle);
+        if ($this->output instanceof Closure && $useHandle) {
+            $ret = $this->output->__invoke($prepend);
+        } else {
+            $ret = $this->output->prepend($prepend, $useHandle);
+        }
 
         $this->prependLine = $this->prependLine === null ? $ret : $this->prependLine .= $ret;
 
