@@ -81,6 +81,24 @@ class OutputTest extends TestCase
     }
 
     /**
+     * @test
+     * @depends identicalContent
+     */
+    public function prependAppendLineTest()
+    {
+        $prepend = "!!! PREPEND !!!";
+        $append = "!!! APPEND !!!";
+        $this->fp->prependLine($prepend);
+        $this->fp->appendLine($append);
+        $page = $this->fp->getPage($this->page);
+        $exploded = explode("\n", $page);
+        foreach ($exploded as $value) {
+            $this->assertStringStartsWith($prepend, $value);
+            $this->assertStringEndsWith($append, rtrim($value));
+        }
+    }
+
+    /**
      * @param $fileAsArray
      * @param $exploded
      */
