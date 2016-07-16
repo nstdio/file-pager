@@ -68,6 +68,11 @@ class FilePager implements OutputInterface
     private $page;
 
     /**
+     * @var string
+     */
+    private $lineSeparator = LineSeparator::AUTO;
+
+    /**
      * FilePaginator constructor.
      *
      * @param string $fileName
@@ -206,13 +211,14 @@ class FilePager implements OutputInterface
             }
             $ret .= $this->handle($line);
             if ($this->appendLine !== null) {
-                $ret = rtrim($ret) . $this->replaceToken($this->appendLine) . PHP_EOL;
+                $ret = rtrim($ret) . $this->replaceToken($this->appendLine) . $this->lineSeparator;
             }
             if ($this->lineNumber % $this->pageSize === 0) {
                 $ret = $this->concatPage($ret);
             }
             $this->realLineNumber++;
             $this->lineNumber++;
+            $ret .= $this->lineSeparator;
         }
         if ($this->page === $this->cache->get()->getPageCount()) {
             $ret = $this->concatPage($ret);
@@ -378,12 +384,43 @@ class FilePager implements OutputInterface
     private function concatPage($ret)
     {
         if ($this->append !== null) {
-            $ret .= $this->replaceToken($this->append);
+            $ret .= $this->lineSeparator . $this->replaceToken($this->append);
         }
         if ($this->prepend !== null) {
-            $ret .= $this->replaceToken($this->prepend);
+            $ret .= $this->lineSeparator . $this->replaceToken($this->prepend);
         }
 
         return $ret;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLineSeparator()
+    {
+        return $this->lineSeparator;
+    }
+
+    /**
+     * @param string $lineSeparator Will be appended to the end of the line.
+     *
+     * @return $this
+     */
+    public function setLineSeparator($lineSeparator)
+    {
+        switch ($lineSeparator) {
+            case LineSeparator::UNIX: break;
+            case LineSeparator::WINDOWS: break;
+            case LineSeparator::MAC: break;
+            case LineSeparator::HTML: break;
+            case LineSeparator::AUTO: break;
+            default:
+                throw new InvalidArgumentException("line separator must be one of LineSeparator constants. To append string to line please use FilePager::appendLine.");
+                break;
+        }
+
+        $this->lineSeparator = $lineSeparator;
+
+        return $this;
     }
 }
