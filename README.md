@@ -13,3 +13,20 @@ or add
 ```
 
 to the `require` section of your `composer.json` file.
+
+# Usage
+```php
+<?php
+use nstdio\FilePager;
+
+$fileName = "path/to/file";
+$pageSize = 25; // lines count on page.
+
+$pager = new FilePager($fileName, $pageSize);
+$pager->setLineSeparator(LineSeparator::HTML); // All control characters will be trimmed out.
+
+$pager->prependLine('#{line}') // prepend string to line. Available tokens {line}, {pageLine}, {path}, {file}, {dir}, {page}.
+      ->append("{page}.");
+
+echp $pager->getPage(1);
+```
